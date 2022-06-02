@@ -18,7 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.17.0")
     implementation("com.h2database:h2")
-    implementation("com.sun.xml.bind:jaxb-impl:2.3.5")
+    implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
     testImplementation(kotlin("test"))
 }
 
