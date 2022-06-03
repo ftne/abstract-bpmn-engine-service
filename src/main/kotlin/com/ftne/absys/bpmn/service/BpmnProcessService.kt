@@ -1,3 +1,4 @@
+package com.ftne.absys.bpmn.service
 
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.runtime.ProcessInstance
@@ -17,7 +18,7 @@ class BpmnProcessService(
             .execute()
     }
 
-    private fun isProcessStarted(businessKey: UUID): Boolean = findProcessInstance(businessKey) == null
+    private fun isProcessStarted(businessKey: UUID): Boolean = findProcessInstance(businessKey) != null
 
     private fun findProcessInstance(businessKey: UUID): ProcessInstance? = runtimeService.createProcessInstanceQuery()
         .processInstanceBusinessKey(businessKey.toString(), PROCESS_KEY)
