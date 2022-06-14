@@ -1,5 +1,6 @@
 package com.ftne.absys.bpmn
 
+import org.springframework.boot.Banner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -7,5 +8,7 @@ import org.springframework.boot.runApplication
 class BpmnEngineApplication
 
 fun main(args: Array<String>) {
-    runApplication<BpmnEngineApplication>(*args)
+    runApplication<BpmnEngineApplication>(*args) {
+        setBannerMode(Banner.Mode.OFF)
+    }
 }
