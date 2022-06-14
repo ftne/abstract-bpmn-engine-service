@@ -31,5 +31,4 @@ class BpmnEngineController(
     fun cancelProcess(@PathVariable id: UUID, @RequestHeader deleteReason: String) {
         processService.cancelProcess(id, deleteReason)
     }
-
 }
