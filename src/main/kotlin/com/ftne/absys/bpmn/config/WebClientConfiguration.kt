@@ -9,5 +9,5 @@ import org.springframework.web.client.RestTemplate
 class WebClientConfiguration {
     @Bean
     fun restTemplate(builder: RestTemplateBuilder): RestTemplate =
-        builder.build() // TODO: play with configuration
+        builder.build()
 }

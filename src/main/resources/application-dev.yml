@@ -1,3 +1,4 @@
 logging:
   level:
     com.ftne.absys.bpmn: DEBUG
+    org.springframework.security: DEBUG
