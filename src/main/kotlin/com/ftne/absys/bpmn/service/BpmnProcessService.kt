@@ -4,14 +4,18 @@ import com.ftne.absys.bpmn.model.ProcessContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import mu.KotlinLogging
 import org.camunda.bpm.engine.RuntimeService
+import org.camunda.bpm.engine.TaskService
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.springframework.stereotype.Service
 import java.util.UUID
+import kotlin.math.min
 
 @ExperimentalSerializationApi
 @Service
 class BpmnProcessService(
-    private val runtimeService: RuntimeService
+    private val runtimeService: RuntimeService,
+    private val taskService: TaskService
 ) {
 
     fun startProcess(id: UUID, ctx: ProcessContext) {
@@ -21,6 +25,42 @@ class BpmnProcessService(
             .setVariables(ctx.asMap)
             .execute()
             .also { logger.debug { "Process $id started" } }
+    }
+
+    fun completeHumanTask(id: UUID) {
+        val task = taskService.createTaskQuery()
+            .processInstanceBusinessKey(id.toString())
+            .singleResult()
+            ?: throw IllegalArgumentException("Unable to find active human task for $id.")
+        taskService.complete(task.id)
+    }
+
+    private fun createIncident(businessKey: String, errorMessage: String?) {
+        logger.error("Creating incident for $businessKey due to $errorMessage")
+        try {
+            runtimeService.createExecutionQuery()
+                .processInstanceBusinessKey(businessKey)
+                .list()
+                .filterIsInstance<ExecutionEntity>()
+                .firstOrNull { it.activityId != null } // assuming that current execution relates to some activity on bpmn diagram
+                ?.let {
+                    runtimeService.createIncident(
+                        "Custom",
+                        it.id,
+                        "Incident data - " + it.processInstanceId,
+                        errorMessage?.substring(0, min(4000, errorMessage.length))
+                    )
+                }
+                ?: logger.error("No suitable executions found to create incident for $businessKey")
+        } catch (e: Exception) {
+            logger.error("Failed to create incident due to exception", e)
+        }
+    }
+
+    fun correlateMessage(id: UUID, msgName: String) {
+        runtimeService.createMessageCorrelation(msgName)
+            .processInstanceBusinessKey(id.toString())
+            .correlate()
     }
 
     private fun isProcessStarted(businessKey: UUID): Boolean = findProcessInstance(businessKey) != null
