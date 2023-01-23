@@ -11,7 +11,7 @@ class InvalidCorrelationDelegate: JavaDelegate {
         try {
             throw IllegalStateException("Invalid correlation key")
         } catch (ex: Exception) {
-            logger.error(ex) {}
+            logger.error("Unexpected error", ex)
             throw ex
         }
     }
