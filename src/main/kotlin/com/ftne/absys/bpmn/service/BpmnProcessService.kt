@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity
 import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.springframework.cloud.sleuth.Tracer
 import org.springframework.stereotype.Service
 import java.util.UUID
 import kotlin.math.min
@@ -15,7 +16,8 @@ import kotlin.math.min
 @Service
 class BpmnProcessService(
     private val runtimeService: RuntimeService,
-    private val taskService: TaskService
+    private val taskService: TaskService,
+    private val tracer: Tracer
 ) {
 
     fun startProcess(id: UUID, ctx: ProcessContext) {
@@ -58,6 +60,7 @@ class BpmnProcessService(
     }
 
     fun correlateMessage(id: UUID, msgName: String) {
+        logger.info { "correlateMessage: ${tracer.currentSpan()?.context()?.traceId()}" }
         runtimeService.createMessageCorrelation(msgName)
             .processInstanceBusinessKey(id.toString())
             .correlate()
